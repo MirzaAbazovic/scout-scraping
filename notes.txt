@@ -1,0 +1,1 @@
+scrapy crawl players_list -o output\players_list.json
