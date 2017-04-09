@@ -18,7 +18,8 @@ class PlayerSpider(scrapy.Spider):
 
     name = 'players_list'
     allowed_domains = ['www.fupa.net']
-    start_urls = ["http://www.fupa.net/liga/u19_bundesliga_sued-suedwest-31423/statistik.html?order=einsaetze&seite=1","http://www.fupa.net/liga/u19_bundesliga_sued-suedwest-31423/statistik.html?order=einsaetze&seite=2"]
+    start_urls = ["http://www.fupa.net/liga/u19_bundesliga_sued-suedwest-31423/statistik.html?order=einsaetze&seite=1"]
+    #,"http://www.fupa.net/liga/u19_bundesliga_sued-suedwest-31423/statistik.html?order=einsaetze&seite=2"]
     # C A parse method to deal with the HTTP response
     def parse(self, response):
         table = response.xpath('//*[@id="ip_content_wrapper"]/div[2]/div[2]/table')
