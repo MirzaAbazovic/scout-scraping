@@ -19,7 +19,7 @@ class PlayerItem(scrapy.Item):
     nationalityFlagUrl = scrapy.Field()
     leauge = scrapy.Field()
     playerImageUrl = scrapy.Field()
-    files = scrapy.Field()
+    images = scrapy.Field()
     file_urls = scrapy.Field()
     # playerImage = scrapy.Field()
         
@@ -66,7 +66,7 @@ class PlayerSpider(scrapy.Spider):
                 next_page = response.css('a.forward_button').xpath('@href').extract_first()
                 if next_page:
                     print(next_page)
-                    #yield scrapy.Request(response.urljoin(next_page), callback=self.parse)
+                    yield scrapy.Request(response.urljoin(next_page), callback=self.parse)
     
     # def validate_date(self, date_text):
     #     try:
@@ -88,7 +88,7 @@ class PlayerSpider(scrapy.Spider):
         item['nationalityFlagUrl'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[2]/table/tr[3]/td[2]/img/@src').extract()
         item['leauge'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[2]/table/tr[8]/td[2]/a[2]/text()').extract()
         item['playerImageUrl'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[1]/img/@src').extract()
-        item['file_urls'].insert(response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[1]/img/@src').extract())
+        item['file_urls'].insert(0,response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[1]/img/@src').extract()[0])
         #item['file_urls'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[1]/img/@src').extract()
         print item['file_urls']
         yield item
