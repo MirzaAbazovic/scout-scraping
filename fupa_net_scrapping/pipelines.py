@@ -10,14 +10,24 @@ from cloudant import Cloudant
 from scrapy.exceptions import DropItem
 
 class FupaNetScrappingPipeline(object):
-    def process_item(self, item, spider):
+    
+    def __init__(self):
         cloudant_user = os.environ["CLOUDANT_USER"]
         cloudant_pass = os.environ["CLOUDANT_PASS"]
         client = Cloudant(cloudant_user, cloudant_pass, account=cloudant_user)
         client.connect()
         session = client.session()
-        scout_database = client['scout']
+        self.database = client['scout']
+        self.client = client
+    
+    def __del__(self):
+        self.client.disconnect()
+        print ('disconect')
+    
+    def process_item(self, item, spider):
+        id = item['firstName']+':'+item['lastName']+':'+item['playerId']
         data = {
+            #'_id' : id,
             'type' : 'player',
             'clubImageUrl': item['clubImageUrl'],
             'clubName': item['clubName'],
@@ -25,13 +35,21 @@ class FupaNetScrappingPipeline(object):
             'lastName': item['lastName'],
             'playerId': item['playerId'],
             'playerUrl': item['playerUrl'],
-            'playerUrlShort': item['playerUrlShort']
+            'playerUrlShort': item['playerUrlShort'],
+            'position': item['position'],
+            'dob': item['dob'],
+            'nationality' :item['nationality'],
+            'nationalityFlagUrl' :item['nationalityFlagUrl'],
+            'leauge' :item['leauge'],
+            'playerImageUrl': item['playerImageUrl'],
+            'file_urls': item['file_urls']
         }
-        my_database = client['scout']
-        my_document = my_database.create_document(data)
-        if my_document.exists():
-            print 'Created document.'
-            return item
-        else:
-            raise DropItem("Failed to post item with id  %s." % item['playerId'])
-            client.disconnect()
+        return item
+        # my_document = self.database.create_document(data)
+        # if my_document.exists():
+        #     print 'Document created'
+        #     return item
+        # else:
+        #     raise DropItem("Failed to post item with id  %s." % item['playerId'])
+        #def get_media_requests(self, item, info):
+        #    yield scrapy.Request(item['file_urls'])

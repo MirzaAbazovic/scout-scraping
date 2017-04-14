@@ -8,7 +8,15 @@
 import scrapy
 
 
-class FupaNetScrappingItem(scrapy.Item):
+class Player(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
+    firstName = scrapy.Field()
+    lastName = scrapy.Field()
+    playerId = scrapy.Field()
+    playerUrl = scrapy.Field()
+    playerUrlShort = scrapy.Field()
+    clubName = scrapy.Field()
+    clubImageUrl = scrapy.Field()
+    #position = scrapy.Field()
     pass
