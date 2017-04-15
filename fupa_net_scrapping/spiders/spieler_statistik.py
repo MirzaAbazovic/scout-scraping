@@ -21,13 +21,12 @@ class PlayerItem(scrapy.Item):
     playerImageUrl = scrapy.Field()
     images = scrapy.Field()
     file_urls = scrapy.Field()
-    # playerImage = scrapy.Field()
+    files = scrapy.Field()
         
 
 class PlayerSpider(scrapy.Spider):
     name = 'players_list'
     allowed_domains = ['www.fupa.net']
-    # start_urls = ["http://www.fupa.net/liga/u19_bundesliga_sued-suedwest-31423/statistik.html?order=einsaetze&seite=1"]
     start_urls = ["http://www.fupa.net/liga/u19_bundesliga_sued-suedwest-31423/statistik.html?order=einsaetze&seite=1"]
     def parse(self, response):
         TABLE_XPATH = '//*[@id="ip_content_wrapper"]/div[2]/div[2]/table'
@@ -58,38 +57,31 @@ class PlayerSpider(scrapy.Spider):
                         clubName=club_name,
                         clubImageUrl = club_image_url,
                         file_urls = [club_image_url])
-                    #print 'GOTO '+player_url
-                    #item['file_urls'] = club_image_url
                     request = scrapy.Request(player_url, callback=self.parse_details)
                     request.meta['item'] = item
-                    yield request # item #PlayerItem( position=item['position'], firstName=first_name, lastName=last_name, playerId = player_id, playerUrl = player_url, playerUrlShort = player_url_short, clubName=club_name, clubImageUrl = club_image_url)
+                    yield request 
                 next_page = response.css('a.forward_button').xpath('@href').extract_first()
                 if next_page:
                     print(next_page)
-                    yield scrapy.Request(response.urljoin(next_page), callback=self.parse)
-    
-    # def validate_date(self, date_text):
-    #     try:
-    #         if date_text != datetime.strptime(date_text, "%d.%m.%Y").strftime('%d.%m.%Y'):
-    #             raise ValueError
-    #             return True
-    #     except ValueError:
-    #         return False
+                    #yield scrapy.Request(response.urljoin(next_page), callback=self.parse)
     
     def parse_details(self, response):
         item = response.meta['item']
         item['position']  = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[2]/table/tr[1]/td[2]/b/text()').extract_first()
         dob = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[2]/table/tr[2]/td[2]/text()').extract_first()
-        # if self.validate_date(dob[:10]):
-        #     item['dob']  = dob[:10]
         if len(dob) > 9:
             item['dob']  = dob[:10]
         item['nationality'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[2]/table/tr[3]/td[2]/img/@title').extract()
-        item['nationalityFlagUrl'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[2]/table/tr[3]/td[2]/img/@src').extract()
+        
+        item['nationalityFlagUrl'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[2]/table/tr[3]/td[2]/img/@src').extract_first()
+        item['file_urls'].insert(0, item['nationalityFlagUrl'])
+        
         item['leauge'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[2]/table/tr[8]/td[2]/a[2]/text()').extract()
-        item['playerImageUrl'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[1]/img/@src').extract()
-        item['file_urls'].insert(0,response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[1]/img/@src').extract()[0])
-        #item['file_urls'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[1]/img/@src').extract()
+
+        item['playerImageUrl'] = response.xpath('/html/body/div[1]/div[2]/div[1]/table[1]/tr/td[1]/img/@src').extract_first()
+        item['file_urls'].insert(0,item['playerImageUrl'])
+        
         print item['file_urls']
+        
         yield item
     

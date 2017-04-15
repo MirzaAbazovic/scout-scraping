@@ -70,8 +70,12 @@ ITEM_PIPELINES = {
     'fupa_net_scrapping.pipelines.FupaNetScrappingPipeline': 300,
 }
 
-IMAGES_STORE = 'C:/Users/mir/projects/fupa_net_scrapping/images'
+#IMAGES_STORE = 'C:/Users/mir/projects/fupa_net_scrapping/images'
 FILES_STORE = 'C:/Users/mir/projects/fupa_net_scrapping/images'
+# IMAGES_THUMBS = {
+#     'small': (50, 50),
+#     'big': (270, 270),
+# }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html

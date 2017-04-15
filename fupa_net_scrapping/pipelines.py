@@ -6,12 +6,15 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import os
+import sys
 from cloudant import Cloudant
 from scrapy.exceptions import DropItem
+import mimetypes
 
 class FupaNetScrappingPipeline(object):
     
     def __init__(self):
+        mimetypes.init()
         cloudant_user = os.environ["CLOUDANT_USER"]
         cloudant_pass = os.environ["CLOUDANT_PASS"]
         client = Cloudant(cloudant_user, cloudant_pass, account=cloudant_user)
@@ -42,14 +45,27 @@ class FupaNetScrappingPipeline(object):
             'nationalityFlagUrl' :item['nationalityFlagUrl'],
             'leauge' :item['leauge'],
             'playerImageUrl': item['playerImageUrl'],
-            'file_urls': item['file_urls']
+            'file_urls': item['file_urls'],
+            'files': item['files']
         }
-        return item
-        # my_document = self.database.create_document(data)
-        # if my_document.exists():
-        #     print 'Document created'
-        #     return item
-        # else:
-        #     raise DropItem("Failed to post item with id  %s." % item['playerId'])
-        #def get_media_requests(self, item, info):
-        #    yield scrapy.Request(item['file_urls'])
+        #return item
+
+        #data['_attachments'] = {file_name : {'data': uploaded_file_content}}
+        my_document = self.database.create_document(data)
+        if my_document.exists():
+             print 'Document created'
+             for fileItem in item['files']:
+                f = open('C:/Users/mir/projects/fupa_net_scrapping/images/'+fileItem['path'],'r+')
+                #f = open('photo.jpg', 'r+')
+                jpgdata = f.read()
+                f.close()
+                name = fileItem['url']
+                m_t = mimetypes.guess_type(name)
+                print(m_t)
+                print('put attach')
+                resp = my_document.put_attachment( attachment = name, data = jpgdata , content_type = 'image/jpeg')
+                print resp
+             return item
+        else:
+             raise DropItem("Failed to post item with id  %s." % item['playerId'])
+        
