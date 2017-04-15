@@ -10,6 +10,7 @@ import sys
 from cloudant import Cloudant
 from scrapy.exceptions import DropItem
 import mimetypes
+import base64
 
 class FupaNetScrappingPipeline(object):
     
@@ -25,7 +26,7 @@ class FupaNetScrappingPipeline(object):
     
     def __del__(self):
         self.client.disconnect()
-        print ('disconect')
+        #print ('disconect')
     
     def process_item(self, item, spider):
         id = item['firstName']+':'+item['lastName']+':'+item['playerId']
@@ -49,23 +50,25 @@ class FupaNetScrappingPipeline(object):
             'files': item['files']
         }
         #return item
-
-        #data['_attachments'] = {file_name : {'data': uploaded_file_content}}
+        # data['_attachments'] = {}
+        # attachments = []
+        # #data['_attachments'] = {file_name : {'data': uploaded_file_content}}
+        # for fileItem in item['files']:
+        #     f = open('C:/Users/mir/projects/fupa_net_scrapping/images/'+fileItem['path'],'r+')
+        #     #f = open('photo.jpg', 'r+')
+        #     jpgdata = f.read()
+        #     encoded = base64.b64encode(jpgdata)
+        #     f.close()
+        #     name = fileItem['url']
+        #     #m_t = mimetypes.guess_type(name)
+        #     #print(m_t)
+        #     print('put attach')
+        #     attachments.append(({name:{'data':encoded}}))
+        #     #resp = my_document.put_attachment( attachment = name, data = jpgdata , content_type = 'image/jpeg')
+        #     print attachments
+        # data['_attachments'] = attachments
         my_document = self.database.create_document(data)
         if my_document.exists():
-             print 'Document created'
-             for fileItem in item['files']:
-                f = open('C:/Users/mir/projects/fupa_net_scrapping/images/'+fileItem['path'],'r+')
-                #f = open('photo.jpg', 'r+')
-                jpgdata = f.read()
-                f.close()
-                name = fileItem['url']
-                m_t = mimetypes.guess_type(name)
-                print(m_t)
-                print('put attach')
-                resp = my_document.put_attachment( attachment = name, data = jpgdata , content_type = 'image/jpeg')
-                print resp
              return item
         else:
              raise DropItem("Failed to post item with id  %s." % item['playerId'])
-        
